@@ -139,8 +139,12 @@ class Core {
 		$content = str_replace( '<body>', '', $content );
 		$content = str_replace( '</body>', '', $content );
 
+		// Get the selected post type from settings
+		$options = get_option( 'load-html-files-settings', array( 'import_post_type' => 'html_files' ) );
+		$post_type = isset( $options['import_post_type'] ) ? $options['import_post_type'] : 'html_files';
+
 		// check if post exists with title
-		$post_id = $this->post_exists_by_title( $title );
+		$post_id = $this->post_exists_by_title( $title, $post_type );
 		if ( $post_id ) {
 			// update the post
 			// set post date to now
@@ -153,10 +157,12 @@ class Core {
 				'post_modified_gmt' => gmdate( 'Y-m-d H:i:s' ),
 			);
 			wp_update_post( $post );
-			// remove object terms and red add them
-			wp_delete_object_term_relationships( $post_id, 'html_files_category' );
-			wp_set_object_terms( $post_id,  $parents, 'html_files_category' );
-
+			// Only set categories for html_files post type
+			if ( $post_type === 'html_files' ) {
+				// remove object terms and red add them
+				wp_delete_object_term_relationships( $post_id, 'html_files_category' );
+				wp_set_object_terms( $post_id,  $parents, 'html_files_category' );
+			}
 
 		} else {
 
@@ -165,11 +171,12 @@ class Core {
 				'post_title'   => $title,
 				'post_content' => $content,
 				'post_status'  => 'publish',
-				'post_type'    => 'html_files',
+				'post_type'    => $post_type,
 			);
 			$post = apply_filters('lhfp_insert_post', $post, $file, $parents, $dir, $html );
 			$post_id = wp_insert_post( $post );
-			if ( ! is_wp_error( $post_id ) ) {
+			if ( ! is_wp_error( $post_id ) && $post_type === 'html_files' ) {
+				// Only set categories for html_files post type
 				wp_set_object_terms( $post_id, $parents, 'html_files_category' );
 			}
 		}
@@ -226,17 +233,17 @@ class Core {
 
 	}
 
-	private function post_exists_by_title( $title ) {
+	private function post_exists_by_title( $title, $post_type = 'html_files' ) {
 		$args = array(
 			'name'        => $title,
-			'post_type'   => 'html_files',
+			'post_type'   => $post_type,
 			'post_status' => 'publish',
 			'numberposts' => 1
 		);
 		$posts = get_posts($args);
 
 // $posts contains the post objects
-		$post = $posts[0];  // $post is the post obj
+		$post = isset( $posts[0] ) ? $posts[0] : null;  // $post is the post obj
 
 		return $post ? $post->ID : false;
 	}
