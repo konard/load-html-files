@@ -132,6 +132,12 @@ class Admin_Settings extends Admin_Pages {
 			$settings['import_post_type'] = 'html_files';
 		}
 
+		// Sanitize image handling settings
+		$settings['download_external_images'] = isset( $settings['download_external_images'] ) ? 1 : 0;
+		$settings['set_featured_image']       = isset( $settings['set_featured_image'] ) ? 1 : 0;
+		$settings['preserve_image_positions'] = isset( $settings['preserve_image_positions'] ) ? 1 : 0;
+		$settings['convert_relative_urls']    = isset( $settings['convert_relative_urls'] ) ? 1 : 0;
+
 		if ( $options['post_slug'] != $settings['post_slug'] ) {
 			$settings['post_slug_changed'] = true;
 		}
@@ -153,6 +159,10 @@ class Admin_Settings extends Admin_Pages {
 					'post_slug_changed'     => false,
 					'category_slug_changed' => false,
 					'import_post_type'      => 'html_files',
+					'download_external_images' => 1,
+					'set_featured_image'       => 1,
+					'preserve_image_positions' => 1,
+					'convert_relative_urls'    => 1,
 				);
 			default:
 				return false;
@@ -235,6 +245,47 @@ class Admin_Settings extends Admin_Pages {
                     </select>
                     <p>
                         <span class="description"><?php esc_html_e( 'Choose where to import HTML files: Custom Post Type (default), Posts, or Pages. Note: Categories will only be assigned when importing to HTML Files.', 'load-html-files' ); ?></span>
+                    </p>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><?php esc_html_e( 'Image Handling', 'load-html-files' ); ?></th>
+                <td>
+                    <fieldset>
+                        <label>
+                            <input type="checkbox"
+                                   name="load-html-files-settings[download_external_images]"
+                                   id="load-html-files-settings[download_external_images]"
+                                   value="1" <?php checked( $options['download_external_images'], 1 ); ?>>
+                            <?php esc_html_e( 'Download external images to Media Library', 'load-html-files' ); ?>
+                        </label>
+                        <br>
+                        <label>
+                            <input type="checkbox"
+                                   name="load-html-files-settings[set_featured_image]"
+                                   id="load-html-files-settings[set_featured_image]"
+                                   value="1" <?php checked( $options['set_featured_image'], 1 ); ?>>
+                            <?php esc_html_e( 'Set first image as featured image', 'load-html-files' ); ?>
+                        </label>
+                        <br>
+                        <label>
+                            <input type="checkbox"
+                                   name="load-html-files-settings[preserve_image_positions]"
+                                   id="load-html-files-settings[preserve_image_positions]"
+                                   value="1" <?php checked( $options['preserve_image_positions'], 1 ); ?>>
+                            <?php esc_html_e( 'Preserve original image positions in content', 'load-html-files' ); ?>
+                        </label>
+                        <br>
+                        <label>
+                            <input type="checkbox"
+                                   name="load-html-files-settings[convert_relative_urls]"
+                                   id="load-html-files-settings[convert_relative_urls]"
+                                   value="1" <?php checked( $options['convert_relative_urls'], 1 ); ?>>
+                            <?php esc_html_e( 'Convert relative image URLs to absolute', 'load-html-files' ); ?>
+                        </label>
+                    </fieldset>
+                    <p>
+                        <span class="description"><?php esc_html_e( 'Configure how images in HTML files are handled during import. External images will be downloaded and stored in your Media Library for better performance and reliability.', 'load-html-files' ); ?></span>
                     </p>
                 </td>
             </tr>
